@@ -11,7 +11,8 @@ export class Searchbar extends Component {
     const { input } = e.target.elements;
     e.preventDefault();
     // this.setState({ searchName: input.value });
-    this.props.submitHandler(input.value);
+    const text = input.value.toLowerCase();
+    this.props.submitHandler(text);
     input.value = '';
   };
 
