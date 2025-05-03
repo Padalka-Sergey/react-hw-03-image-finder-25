@@ -42,12 +42,17 @@ export class ImageGallery extends Component {
         // this.setState({ status: 'pending', page: 1 });
         this.setState({ status: 'pendingBtn' });
         const response = await fetchReq(searchData, page);
-        this.setState(prevState => {
-          return {
-            responseData: [...prevState.responseData, ...response.data.hits],
-
-            status: 'resolved',
-          };
+        const responseAll = [...prevState.responseData, ...response.data.hits];
+        const idxRepeat = responseAll
+          .map(item => item.id)
+          .findIndex((item, idx, arr) => arr.indexOf(item) !== idx);
+        responseAll.splice(idxRepeat, 1);
+        // const responseFilter = responseAll.slice(idxRepeat, idxRepeat + 1);
+        console.log(idxRepeat);
+        console.log(responseAll);
+        this.setState({
+          responseData: responseAll,
+          status: 'resolved',
         });
       } catch (error) {
         this.setState({ error, status: 'rejected' });
@@ -61,18 +66,6 @@ export class ImageGallery extends Component {
     if (status === 'pending') {
       return <Loader />;
     }
-
-    // if (status === 'pendingBtn') {
-    //   return (
-    //     <>
-    //       <GalleryList>
-    //         <ImageGalleryItem responseData={responseData} />
-    //       </GalleryList>
-    //       <Loader />
-    //       {/* <Button nextPageHandler={this.nextPageHandler} /> */}
-    //     </>
-    //   );
-    // }
 
     if (status === 'resolved' && responseData.length === 0) {
       return (
