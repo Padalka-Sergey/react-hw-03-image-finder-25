@@ -62,17 +62,17 @@ export class ImageGallery extends Component {
       return <Loader />;
     }
 
-    if (status === 'pendingBtn') {
-      return (
-        <>
-          <GalleryList>
-            <ImageGalleryItem responseData={responseData} />
-          </GalleryList>
-          <Loader />
-          {/* <Button nextPageHandler={this.nextPageHandler} /> */}
-        </>
-      );
-    }
+    // if (status === 'pendingBtn') {
+    //   return (
+    //     <>
+    //       <GalleryList>
+    //         <ImageGalleryItem responseData={responseData} />
+    //       </GalleryList>
+    //       <Loader />
+    //       {/* <Button nextPageHandler={this.nextPageHandler} /> */}
+    //     </>
+    //   );
+    // }
 
     if (status === 'resolved' && responseData.length === 0) {
       return (
@@ -98,15 +98,18 @@ export class ImageGallery extends Component {
       );
     }
 
-    if (status === 'resolved' && responseData.length > 0) {
-      return (
+    return (
+      (status === 'resolved' || status === 'pendingBtn') && (
         <>
           <GalleryList>
             <ImageGalleryItem responseData={responseData} />
           </GalleryList>
-          <Button nextPageHandler={this.nextPageHandler} />
+          {responseData.length > 0 && status !== 'pendingBtn' && (
+            <Button nextPageHandler={this.nextPageHandler} />
+          )}
+          {status === 'pendingBtn' && <Loader />}
         </>
-      );
-    }
+      )
+    );
   }
 }

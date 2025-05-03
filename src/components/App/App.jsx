@@ -6,10 +6,6 @@ import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 export class App extends Component {
   state = {
     searchData: '',
-    // page: 1,
-    // responseData: [],
-    // isLoading: false,
-    // error: null,
   };
 
   formSubmitHandler = data => {
@@ -21,11 +17,6 @@ export class App extends Component {
       <AppContainer>
         <Searchbar submitHandler={this.formSubmitHandler} />
         <ImageGallery searchData={this.state.searchData} />
-        {/* {this.state.isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          <ImageGallery responseData={this.state.responseData} />
-        )} */}
       </AppContainer>
     );
   }
