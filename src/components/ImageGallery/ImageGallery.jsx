@@ -39,19 +39,19 @@ export class ImageGallery extends Component {
     }
     if (prevState.page !== page) {
       try {
-        // this.setState({ status: 'pending', page: 1 });
         this.setState({ status: 'pendingBtn' });
         const response = await fetchReq(searchData, page);
         const responseAll = [...prevState.responseData, ...response.data.hits];
-        const idxRepeat = responseAll
-          .map(item => item.id)
-          .findIndex((item, idx, arr) => arr.indexOf(item) !== idx);
-        responseAll.splice(idxRepeat, 1);
-        // const responseFilter = responseAll.slice(idxRepeat, idxRepeat + 1);
-        console.log(idxRepeat);
+
+        const responseFilter = responseAll.filter(
+          (item, idx, arr) =>
+            idx === arr.findIndex(arrEl => arrEl.id === item.id)
+        );
+
         console.log(responseAll);
+        console.log(responseFilter);
         this.setState({
-          responseData: responseAll,
+          responseData: responseFilter,
           status: 'resolved',
         });
       } catch (error) {
