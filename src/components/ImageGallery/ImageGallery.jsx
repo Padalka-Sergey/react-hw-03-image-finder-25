@@ -6,6 +6,8 @@ import { Loader } from 'components/Loader/Loader';
 import { Button } from 'components/Button/Button';
 
 export class ImageGallery extends Component {
+  gallery = React.createRef();
+
   state = {
     responseData: [],
     page: 1,
@@ -21,11 +23,29 @@ export class ImageGallery extends Component {
     });
   };
 
+  makeLowScroll = () => {
+    const { page } = this.state;
+    if (page === 1) {
+      return;
+    }
+    const linkGallery = this.gallery.current;
+    const { height } = linkGallery.firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: height * 2,
+      behavior: 'smooth',
+    });
+  };
+
   async componentDidUpdate(prevProps, prevState) {
     const { page } = this.state;
     const { searchData } = this.props;
 
     if (prevProps.searchData !== searchData) {
+      if (searchData.trim() === '') {
+        this.setState({ status: 'idleAlert' });
+        return;
+      }
       try {
         this.setState({ status: 'pending', page: 1 });
         const response = await fetchReq(searchData, page);
@@ -48,8 +68,6 @@ export class ImageGallery extends Component {
             idx === arr.findIndex(arrEl => arrEl.id === item.id)
         );
 
-        console.log(responseAll);
-        console.log(responseFilter);
         this.setState({
           responseData: responseFilter,
           status: 'resolved',
@@ -79,6 +97,10 @@ export class ImageGallery extends Component {
       );
     }
 
+    if (status === 'idleAlert') {
+      return alert('Введите запрос!');
+    }
+
     if (status === 'rejected') {
       return (
         <h1
@@ -94,9 +116,10 @@ export class ImageGallery extends Component {
     return (
       (status === 'resolved' || status === 'pendingBtn') && (
         <>
-          <GalleryList>
+          <GalleryList ref={this.gallery} onLoad={this.makeLowScroll}>
             <ImageGalleryItem responseData={responseData} />
           </GalleryList>
+
           {responseData.length > 0 && status !== 'pendingBtn' && (
             <Button nextPageHandler={this.nextPageHandler} />
           )}
