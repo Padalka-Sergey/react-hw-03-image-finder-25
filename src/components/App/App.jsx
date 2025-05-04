@@ -9,24 +9,17 @@ export class App extends Component {
   };
 
   formSubmitHandler = data => {
-    // console.dir(ImageGallery);
     this.setState({ searchData: data });
   };
-
-  // makeLowScroll = () => {
-  //   const { height } = ImageGallery.firstElementChild.getBoundingClientRect();
-
-  //   window.scrollBy({
-  //     top: height * 2,
-  //     behavior: 'smooth',
-  //   });
-  // };
 
   render() {
     return (
       <AppContainer>
         <Searchbar submitHandler={this.formSubmitHandler} />
-        <ImageGallery searchData={this.state.searchData} />
+        <ImageGallery
+          searchData={this.state.searchData}
+          resetDataHandler={this.formSubmitHandler}
+        />
       </AppContainer>
     );
   }

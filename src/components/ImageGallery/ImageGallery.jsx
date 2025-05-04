@@ -46,9 +46,11 @@ export class ImageGallery extends Component {
         this.setState({ status: 'idleAlert' });
         return;
       }
+      this.setState({ page: 1, status: 'pending' });
+      // console.log(page);
       try {
-        this.setState({ status: 'pending', page: 1 });
-        const response = await fetchReq(searchData, page);
+        // const response = await fetchReq(searchData, page);
+        const response = await fetchReq(searchData, 1);
         this.setState({
           responseData: response.data.hits,
           status: 'resolved',
@@ -57,9 +59,16 @@ export class ImageGallery extends Component {
         this.setState({ error, status: 'rejected' });
       }
     }
+
     if (prevState.page !== page) {
+      if (page === 1) {
+        return;
+      }
+      // console.log('Изменилась страница');
+      // console.log(page);
+      this.setState({ status: 'pendingBtn' });
       try {
-        this.setState({ status: 'pendingBtn' });
+        // this.setState({ status: 'pending' });
         const response = await fetchReq(searchData, page);
         const responseAll = [...prevState.responseData, ...response.data.hits];
 
@@ -97,7 +106,7 @@ export class ImageGallery extends Component {
       );
     }
 
-    if (status === 'idleAlert') {
+    if (status === 'idleAlert' && this.props.searchData.trim() === '') {
       return alert('Введите запрос!');
     }
 
@@ -115,15 +124,18 @@ export class ImageGallery extends Component {
 
     return (
       (status === 'resolved' || status === 'pendingBtn') && (
+        // (status === 'resolved' || status === 'pending') && (
         <>
           <GalleryList ref={this.gallery} onLoad={this.makeLowScroll}>
             <ImageGalleryItem responseData={responseData} />
           </GalleryList>
 
           {responseData.length > 0 && status !== 'pendingBtn' && (
+            // {responseData.length > 0 && status !== 'pending' && (
             <Button nextPageHandler={this.nextPageHandler} />
           )}
           {status === 'pendingBtn' && <Loader />}
+          {/* {status === 'pending' && <Loader />} */}
         </>
       )
     );
