@@ -3,14 +3,9 @@ import React, { Component } from 'react';
 import { SearchbarBox, Form, BtnForm, InputForm } from './Searchbar.styled';
 
 export class Searchbar extends Component {
-  //   state = {
-  //     searchName: '',
-  //   };
-
   onSubmitHandler = e => {
     const { input } = e.target.elements;
     e.preventDefault();
-    // this.setState({ searchName: input.value });
     const text = input.value.toLowerCase();
     this.props.submitHandler(text);
     input.value = '';

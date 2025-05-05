@@ -15,6 +15,51 @@ export class ImageGallery extends Component {
     error: null,
   };
 
+  async componentDidUpdate(prevProps, prevState) {
+    const { page } = this.state;
+    const { searchData } = this.props;
+
+    if (prevProps.searchData !== searchData) {
+      if (searchData.trim() === '') {
+        this.setState({ status: 'idleAlert' });
+        return;
+      }
+      this.setState({ page: 1, status: 'pending' });
+      try {
+        const response = await fetchReq(searchData, 1);
+        this.setState({
+          responseData: response.data.hits,
+          status: 'resolved',
+        });
+      } catch (error) {
+        this.setState({ error, status: 'rejected' });
+      }
+    }
+
+    if (prevState.page !== page) {
+      if (page === 1) {
+        return;
+      }
+      this.setState({ status: 'pendingBtn' });
+      try {
+        const response = await fetchReq(searchData, page);
+        const responseAll = [...prevState.responseData, ...response.data.hits];
+
+        const responseFilter = responseAll.filter(
+          (item, idx, arr) =>
+            idx === arr.findIndex(arrEl => arrEl.id === item.id)
+        );
+
+        this.setState({
+          responseData: responseFilter,
+          status: 'resolved',
+        });
+      } catch (error) {
+        this.setState({ error, status: 'rejected' });
+      }
+    }
+  }
+
   nextPageHandler = () => {
     this.setState(prevState => {
       return {
@@ -36,56 +81,6 @@ export class ImageGallery extends Component {
       behavior: 'smooth',
     });
   };
-
-  async componentDidUpdate(prevProps, prevState) {
-    const { page } = this.state;
-    const { searchData } = this.props;
-
-    if (prevProps.searchData !== searchData) {
-      if (searchData.trim() === '') {
-        this.setState({ status: 'idleAlert' });
-        return;
-      }
-      this.setState({ page: 1, status: 'pending' });
-      // console.log(page);
-      try {
-        // const response = await fetchReq(searchData, page);
-        const response = await fetchReq(searchData, 1);
-        this.setState({
-          responseData: response.data.hits,
-          status: 'resolved',
-        });
-      } catch (error) {
-        this.setState({ error, status: 'rejected' });
-      }
-    }
-
-    if (prevState.page !== page) {
-      if (page === 1) {
-        return;
-      }
-      // console.log('Изменилась страница');
-      // console.log(page);
-      this.setState({ status: 'pendingBtn' });
-      try {
-        // this.setState({ status: 'pending' });
-        const response = await fetchReq(searchData, page);
-        const responseAll = [...prevState.responseData, ...response.data.hits];
-
-        const responseFilter = responseAll.filter(
-          (item, idx, arr) =>
-            idx === arr.findIndex(arrEl => arrEl.id === item.id)
-        );
-
-        this.setState({
-          responseData: responseFilter,
-          status: 'resolved',
-        });
-      } catch (error) {
-        this.setState({ error, status: 'rejected' });
-      }
-    }
-  }
 
   render() {
     const { responseData, status, error } = this.state;
@@ -124,18 +119,24 @@ export class ImageGallery extends Component {
 
     return (
       (status === 'resolved' || status === 'pendingBtn') && (
-        // (status === 'resolved' || status === 'pending') && (
         <>
           <GalleryList ref={this.gallery} onLoad={this.makeLowScroll}>
-            <ImageGalleryItem responseData={responseData} />
+            {/* {responseData.map(({ id, webformatURL, tags, largeImageURL }) => ( */}
+            {responseData.map(({ id, ...otherProps }) => (
+              <ImageGalleryItem
+                key={id}
+                {...otherProps}
+                // webformatURL={webformatURL}
+                // tags={tags}
+                // largeImageURL={largeImageURL}
+              />
+            ))}
           </GalleryList>
 
           {responseData.length > 0 && status !== 'pendingBtn' && (
-            // {responseData.length > 0 && status !== 'pending' && (
             <Button nextPageHandler={this.nextPageHandler} />
           )}
           {status === 'pendingBtn' && <Loader />}
-          {/* {status === 'pending' && <Loader />} */}
         </>
       )
     );

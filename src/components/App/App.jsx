@@ -16,10 +16,7 @@ export class App extends Component {
     return (
       <AppContainer>
         <Searchbar submitHandler={this.formSubmitHandler} />
-        <ImageGallery
-          searchData={this.state.searchData}
-          resetDataHandler={this.formSubmitHandler}
-        />
+        <ImageGallery searchData={this.state.searchData} />
       </AppContainer>
     );
   }
